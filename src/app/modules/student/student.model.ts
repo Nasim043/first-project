@@ -9,7 +9,8 @@ import {
 const userNameSchema = new Schema<UserName>({
   firstName: {
     type: String,
-    required: true,
+    required: [true, 'First Name is required'],
+    maxlength: [20, 'First Name sholud not be more than 20 Characters'],
   },
   middleName: {
     type: String,
@@ -67,20 +68,49 @@ const localGuradianSchema = new Schema<LocalGuardian>({
 });
 
 const studentSchema = new Schema<Student>({
-  id: { type: String },
-  name: userNameSchema,
-  gender: ['male', 'female'],
+  id: { type: String, required: [true, 'ID is required'] },
+  name: {
+    type: userNameSchema,
+    required: [true, 'Name is required']
+  },
+  gender: {
+    type: String,
+    enum: {
+      values: ['male', 'female', 'other'],
+      message: '{Value} is not a valid gender'
+    },
+  },
   dateOfBirth: { type: String },
-  email: { type: String, required: true },
-  contactNo: { type: String, required: true },
+  email: { type: String, required: [true, 'Email is required'] },
+  contactNo: {
+    type: String,
+    required: true,
+    validate: {
+      validator: (v: string): boolean => v.length === 11,
+      message: props => `${props.value} is not 11 digits`
+    }
+  },
   emergencyContactNo: { type: String, required: true },
-  bloogGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+  bloogGroup: {
+    type: String,
+    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+  },
   presentAddress: { type: String, required: true },
   permanentAddres: { type: String, required: true },
-  guardian: guardianSchema,
-  localGuardian: localGuradianSchema,
+  guardian: {
+    type: guardianSchema,
+    required: [true, 'Guardian is required']
+  },
+  localGuardian: {
+    type: localGuradianSchema,
+    required: [true, 'Local Guardian is required']
+  },
   profileImg: { type: String },
-  isActive: ['active', 'blocked'],
+  isActive: {
+    type: String,
+    enum: ['active', 'blocked'],
+    default: 'active',
+  },
 });
 
 export const StudentModel = model<Student>('Student', studentSchema);
