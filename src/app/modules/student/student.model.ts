@@ -1,12 +1,10 @@
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcrypt';
 import {
   Guardian,
   LocalGuardian,
   Student,
   UserName,
 } from './student.interface';
-import config from '../../config';
 
 const userNameSchema = new Schema<UserName>({
   firstName: {
@@ -117,17 +115,4 @@ const studentSchema = new Schema<Student>({
   profileImg: { type: String },
 });
 
-
-// middleware
-
-studentSchema.pre('save', async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this;
-  user.password = await bcrypt.hash(user.password, Number(config.saltRounds));
-  console.log(this, 'Pre hook');
-  next();
-})
-studentSchema.post('save', function () {
-  console.log(this, 'Post hook');
-})
 export const StudentModel = model<Student>('Student', studentSchema);
